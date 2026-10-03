@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DarkChat</title>
+<style>
+:root{--bg:#07070b;--panel:#0e0e15;--line:#23232f;--txt:#f1f1f5;--mut:#8b8b9c;--red:#ff2d46;--red2:#ff5a6d}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:radial-gradient(900px 400px at 50% -10%,#3a0710 0,transparent 70%),var(--bg);color:var(--txt);font:16px/1.55 "Segoe UI",system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--red2);outline-offset:2px}
+header{display:flex;gap:10px;align-items:center;padding:12px;padding-top:calc(12px + env(safe-area-inset-top,0px));border-bottom:1px solid var(--line)}
+.ico{width:44px;height:44px;border:1px solid var(--line);border-radius:14px;background:var(--panel);display:grid;place-items:center;font-size:20px}
+select{flex:1;min-width:0;height:44px;border-radius:22px;border:1px solid var(--line);background:var(--panel);color:var(--txt);padding:0 16px;font:inherit}
+.crown{background:var(--red);border-color:var(--red)}
+#chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:18px}
+.u{align-self:flex-end;max-width:88%;border:1px solid var(--line);background:var(--panel);padding:12px 16px;border-radius:16px}
+.b .who{color:var(--red2);font-weight:700;letter-spacing:.04em;margin-bottom:4px}
+.b p{margin:0 0 10px;white-space:pre-wrap}
+.code{border:1px solid var(--line);border-radius:12px;background:#0a0a10;margin:8px 0;overflow:hidden}
+.code .bar{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid var(--line);color:var(--red2);font-size:13px}
+.code .bar button{border:1px solid var(--line);border-radius:14px;padding:3px 12px;font-size:12px;color:var(--mut);margin-left:6px}
+.code pre{padding:12px;overflow-x:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;color:#e5e5ee}
+.empty{margin:auto;text-align:center;color:var(--mut);max-width:300px}
+.empty h2{font-size:28px;color:var(--txt);line-height:1.15;margin-bottom:8px}
+.empty h2 span{color:var(--red)}
+footer{padding:8px 12px calc(12px + env(safe-area-inset-bottom,0px))}
+.meta{text-align:center;font-size:13px;color:var(--mut);margin-bottom:6px}
+.meta a{color:var(--red2);cursor:pointer;margin-left:6px}
+.in{display:flex;gap:8px;align-items:flex-end;border:1.5px solid var(--red);border-radius:28px;padding:8px 8px 8px 18px;background:var(--panel);box-shadow:0 0 18px #ff2d4622}
+textarea{flex:1;background:none;border:0;color:var(--txt);font:inherit;resize:none;max-height:140px;padding:8px 0}
+textarea:focus-visible{outline:none}
+.send{width:44px;height:44px;border-radius:50%;background:var(--red);font-size:20px}
+.send:disabled{background:#33333f}
+/* sidebar & plans */
+.ov{position:fixed;inset:0;background:#000a;display:none;z-index:5}
+.ov.on{display:block}
+aside{position:fixed;top:0;bottom:0;left:0;width:min(82vw,330px);background:var(--bg);border-right:1px solid var(--red);padding:calc(16px + env(safe-area-inset-top,0px)) 14px 14px;display:none;flex-direction:column;gap:8px;z-index:6;overflow-y:auto}
+aside.on{display:flex}
+.logo{display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:20px;margin-bottom:6px}
+.logo em{color:var(--red);font-style:normal}
+.lang{display:flex;border:1px solid var(--line);border-radius:18px;padding:3px;gap:2px}
+.lang button{padding:3px 12px;border-radius:14px;font-size:14px;color:var(--mut)}
+.lang button.on{background:var(--red);color:#fff}
+.new{background:var(--red);border-radius:26px;padding:13px;font-weight:700;box-shadow:0 0 20px #ff2d4655}
+.sec{font-size:12px;letter-spacing:.14em;color:var(--mut);margin:12px 4px 2px}
+.nav{display:flex;justify-content:space-between;text-align:left;padding:11px 8px;border-radius:10px;font-weight:600}
+.nav:hover{background:var(--panel)}
+.conv{background:#2a0a12;border-radius:10px;padding:11px 12px;text-align:left;display:flex;justify-content:space-between;gap:8px}
+.conv span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.go{margin-top:auto;border:1px solid var(--red);border-radius:14px;padding:14px;background:var(--panel)}
+.go b{color:var(--red2)}
+.anon{border:1px solid var(--line);border-radius:14px;padding:14px;font-size:14px;color:var(--mut)}
+.anon b{color:#f5b301;display:block;margin-bottom:2px}
+.row{display:flex;gap:8px;margin-top:10px}
+.row button{flex:1;border:1px solid var(--line);border-radius:8px;padding:10px 4px;font-size:13px;letter-spacing:.06em;color:var(--txt)}
+.row button:first-child{background:#2a0a12;border-color:#5a1422}
+.fine{font-size:12px;color:var(--mut);text-align:center}
+#plans{position:fixed;inset:0;background:var(--bg);z-index:8;overflow-y:auto;padding:calc(16px + env(safe-area-inset-top,0px)) 16px 32px;display:none}
+#plans.on{display:block}
+#plans h1{font-size:40px;line-height:1.05;text-align:center;margin:18px 0 10px}
+#plans h1 span{color:var(--red)}
+.sub{text-align:center;color:var(--mut);margin-bottom:20px}
+.plan{border:1px solid var(--line);border-radius:22px;padding:22px;margin-bottom:26px;background:var(--panel);position:relative}
+.plan.rec{border-color:var(--red);box-shadow:0 0 28px #ff2d4633}
+.tag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--red);border-radius:14px;padding:3px 16px;font-size:12px;font-weight:700;letter-spacing:.1em}
+.plan h3{font-size:26px}
+.price{font-size:44px;font-weight:800;margin:10px 0 2px}
+.price small{font-size:16px;color:var(--mut);font-weight:400}
+.cr{color:var(--red2);font-weight:700;margin-bottom:12px}
+.plan li{list-style:none;padding:5px 0 5px 26px;position:relative}
+.plan li:before{content:"✓";position:absolute;left:0;color:var(--red)}
+.cta{display:block;width:100%;margin-top:14px;background:var(--red);border-radius:26px;padding:14px;font-weight:700;letter-spacing:.06em}
+.close{position:sticky;top:0;float:right;z-index:2}
+</style>
+</head>
+<body>
+<header>
+  <button class="ico" id="menu" aria-label="Menu">☰</button>
+  <select id="model" aria-label="Model">
+    <option>Qwen3.5 9B · abliteré</option>
+    <option>Reasoning · R1</option>
+    <option>Vision · VL</option>
+  </select>
+  <button class="ico crown" id="crown" aria-label="Plans">♛</button>
+</header>
+
+<main id="chat"></main>
+
+<footer>
+  <div class="meta"><span id="trials"></span> <a id="plansLink"></a></div>
+  <div class="in">
+    <textarea id="msg" rows="1"></textarea>
+    <button class="send" id="send" aria-label="Send">↑</button>
+  </div>
+</footer>
+
+<div class="ov" id="ov"></div>
+<aside id="side">
+  <div class="logo"><span>DARK <em>CHAT</em></span>
+    <div class="lang"><button data-l="pt">PT</button><button data-l="en">EN</button></div>
+  </div>
+  <button class="new" id="new"></button>
+  <div class="sec" id="sWork"></div>
+  <button class="nav" id="nModels"></button>
+  <div class="sec" id="sAcc"></div>
+  <button class="nav"><span id="nUse"></span><span id="useN">0</span></button>
+  <button class="nav" id="nSub"></button>
+  <button class="nav" id="nRef"></button>
+  <div class="sec" id="sConv"></div>
+  <div id="convs"></div>
+  <div class="go" id="go"></div>
+  <div class="anon"><b id="aT"></b><span id="aD"></span>
+    <div class="row"><button id="bCreate"></button><button id="bIn"></button></div>
+  </div>
+  <div class="fine" id="fine"></div>
+</aside>
+
+<section id="plans">
+  <button class="ico close" id="closePlans" aria-label="Close">✕</button>
+  <h1 id="pH"></h1>
+  <p class="sub" id="pS"></p>
+  <div id="pList"></div>
+</section>
+
+<script>
+/* ===== Configuração =====
+   Para ligar a uma IA real, coloque aqui o endereço do seu backend.
+   Ele deve receber POST {model, messages} e devolver {reply:"texto"}. */
+const API_URL = "";
+
+const T = {
+ pt:{ph:"Digite sua mensagem...",hello:"Pergunte qualquer coisa.",helloS:"Sem filtros adicionados pela plataforma.",you:"VOCÊ",trials:"restam 2 testes",plans:"PLANOS",
+  new:"+ NOVA CONVERSA",work:"ÁREA DE TRABALHO",models:"Modelos",acc:"CONTA",use:"Uso",sub:"Assinatura",ref:"Indicações",conv:"CONVERSAS",
+  go:"<b>ILIMITADO</b><br>Milhares de mensagens, todos os modelos, a partir de €9,99.",aT:"Sessão anônima",aD:"Presa a este navegador. Limpar o cache apaga tudo.",
+  create:"CRIAR CONTA",login:"ENTRAR",fine:"Nenhum filtro adicionado pela plataforma. Você é responsável pelo seu uso.",
+  pH:"IA SEM <span>LIMITES</span>",pS:"Escolha seu plano. Sem fidelidade, cancele em um clique.",mo:"ASSINATURA MENSAL",month:"/ mês",cred:"créditos renovados todo mês",
+  rec:"RECOMENDADO",acct:"CRIE UMA CONTA PRIMEIRO",copy:"COPIAR",copied:"COPIADO",dl:"BAIXAR",demo:"Modo demonstração: defina API_URL no código para conectar uma IA real.",err:"Erro ao conectar ao servidor.",
+  starter:["Uso diário confortável.","Todos os modelos — visão, raciocínio, sem censura","Contexto longo","Suporte por e-mail","Cancele em um clique"],
+  pro:["Para uso intensivo.","Todos os modelos — visão, raciocínio, sem censura","Contexto longo","Suporte prioritário","Cancele em um clique"],
+  max:["Sem pensar duas vezes.","Todos os modelos — visão, raciocínio, sem censura","Prioridade máxima","Acesso antecipado às novidades","Cancele em um clique"]},
+ en:{ph:"Type your message...",hello:"Ask anything.",helloS:"No filter added by the platform.",you:"YOU",trials:"2 trials left",plans:"PLANS",
+  new:"+ NEW CONVERSATION",work:"WORKSPACE",models:"Models",acc:"ACCOUNT",use:"Usage",sub:"Subscription",ref:"Referral",conv:"CONVERSATIONS",
+  go:"<b>GO UNLIMITED</b><br>Thousands of messages, every model, from €9.99.",aT:"Anonymous session",aD:"Tied to this browser. Clearing the cache erases everything.",
+  create:"CREATE AN ACCOUNT",login:"SIGN IN",fine:"No filter added by the platform. You remain responsible for your use.",
+  pH:"AI WITHOUT <span>LIMITS</span>",pS:"Choose your plan. No commitment, cancel in one click.",mo:"MONTHLY SUBSCRIPTION",month:"/ month",cred:"credits renewed every month",
+  rec:"RECOMMENDED",acct:"CREATE AN ACCOUNT FIRST",copy:"COPY",copied:"COPIED",dl:"DOWNLOAD",demo:"Demo mode: set API_URL in the code to connect a real AI.",err:"Could not reach the server.",
+  starter:["Comfortable daily use.","Every model — vision, reasoning, uncensored","Long context","Email support","Cancel in one click"],
+  pro:["For heavy use.","Every model — vision, reasoning, uncensored","Long context","Priority support","Cancel in one click"],
+  max:["No second thoughts.","Every model — vision, reasoning, uncensored","Maximum priority","Early access to new features","Cancel in one click"]}
+};
+const PLANS=[["starter","STARTER","9,99","95 000"],["pro","PRO","19,99","205 000"],["max","MAX","49,99","530 000"]];
+
+const $=id=>document.getElementById(id);
+let lang=localStorage.getItem("lang")||"pt";
+let convs=JSON.parse(localStorage.getItem("convs")||"[]");
+let cur=null, used=+localStorage.getItem("used")||0;
+const t=k=>T[lang][k];
+const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const save=()=>{localStorage.setItem("convs",JSON.stringify(convs));localStorage.setItem("used",used)};
+
+function ui(){
+  document.documentElement.lang=lang==="pt"?"pt-BR":"en";
+  $("msg").placeholder=t("ph");$("trials").textContent=t("trials");$("plansLink").textContent=t("plans");
+  $("new").textContent=t("new");$("sWork").textContent=t("work");$("nModels").textContent=t("models");
+  $("sAcc").textContent=t("acc");$("nUse").textContent=t("use");$("nSub").textContent=t("sub");$("nRef").textContent=t("ref");
+  $("sConv").textContent=t("conv");$("go").innerHTML=t("go");$("aT").textContent=t("aT");$("aD").textContent=t("aD");
+  $("bCreate").textContent=t("create");$("bIn").textContent=t("login");$("fine").textContent=t("fine");
+  $("pH").innerHTML=t("pH");$("pS").textContent=t("pS");$("useN").textContent=used;
+  document.querySelectorAll(".lang button").forEach(b=>b.classList.toggle("on",b.dataset.l===lang));
+  renderPlans();renderConvs();render();
+}
+function renderPlans(){
+  $("pList").innerHTML=PLANS.map(([k,n,p,c])=>{
+    const f=t(k);
+    return `<div class="plan ${k==="pro"?"rec":""}">${k==="pro"?`<div class="tag">${t("rec")}</div>`:""}
+    <div class="sec" style="margin:0">${t("mo")}</div><h3>${n}</h3><p style="color:var(--mut)">${f[0]}</p>
+    <div class="price">${p} <small>€ ${t("month")}</small></div><div class="cr">${c} ${t("cred")}</div>
+    <ul>${f.slice(1).map(x=>`<li>${x}</li>`).join("")}</ul><button class="cta">${t("acct")}</button></div>`}).join("");
+}
+function renderConvs(){
+  $("convs").innerHTML=convs.map((c,i)=>`<button class="conv" data-i="${i}"><span>${esc(c.title)}</span><span>${c.m.length}</span></button>`).join("");
+}
+function fmt(text){
+  // separa blocos ```lang ... ``` do texto normal
+  return text.split(/```/).map((part,i)=>{
+    if(i%2===0) return part.trim()?`<p>${esc(part.trim())}</p>`:"";
+    const nl=part.indexOf("\n"), l=part.slice(0,nl).trim()||"code", code=part.slice(nl+1).replace(/\n$/,"");
+    return `<div class="code"><div class="bar"><span>${esc(l.toUpperCase())}</span><span><button data-a="copy">${t("copy")}</button><button data-a="dl" data-l="${esc(l)}">${t("dl")}</button></span></div><pre>${esc(code)}</pre></div>`;
+  }).join("");
+}
+function render(){
+  const c=convs[cur];
+  if(!c||!c.m.length){$("chat").innerHTML=`<div class="empty"><h2>${t("hello")}</h2><p>${t("helloS")}</p></div>`;return}
+  $("chat").innerHTML=c.m.map(m=>m.r==="u"?`<div class="u">${esc(m.t)}</div>`:`<div class="b"><div class="who">DARKCHAT</div>${fmt(m.t)}</div>`).join("");
+  $("chat").scrollTop=1e9;
+}
+async function ask(c){
+  if(!API_URL) return t("demo");
+  try{
+    const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:$("model").value,messages:c.m.map(m=>({role:m.r==="u"?"user":"assistant",content:m.t}))})});
+    return (await r.json()).reply;
+  }catch(e){return t("err")}
+}
+async function send(){
+  const v=$("msg").value.trim(); if(!v||$("send").disabled) return;
+  if(cur===null||!convs[cur]){convs.unshift({title:v.slice(0,40),m:[]});cur=0}
+  const c=convs[cur]; c.m.push({r:"u",t:v}); $("msg").value=""; $("msg").style.height="auto";
+  $("send").disabled=true; render();
+  const reply=await ask(c); c.m.push({r:"b",t:reply});
+  used++; $("useN").textContent=used; $("send").disabled=false; save(); renderConvs(); render();
+}
+const side=(on)=>{$("side").classList.toggle("on",on);$("ov").classList.toggle("on",on)};
+const plans=(on)=>{$("plans").classList.toggle("on",on);side(false)};
+
+$("menu").onclick=()=>side(true); $("ov").onclick=()=>side(false);
+$("crown").onclick=$("plansLink").onclick=$("go").onclick=$("nSub").onclick=()=>plans(true);
+$("closePlans").onclick=()=>plans(false);
+$("new").onclick=()=>{cur=null;render();side(false)};
+$("send").onclick=send;
+$("msg").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
+$("msg").addEventListener("input",e=>{e.target.style.height="auto";e.target.style.height=e.target.scrollHeight+"px"});
+$("convs").onclick=e=>{const b=e.target.closest(".conv");if(b){cur=+b.dataset.i;render();side(false)}};
+document.querySelector(".lang").onclick=e=>{const l=e.target.dataset.l;if(l){lang=l;localStorage.setItem("lang",l);ui()}};
+$("chat").onclick=e=>{
+  const b=e.target.closest("button[data-a]"); if(!b) return;
+  const code=b.closest(".code").querySelector("pre").textContent;
+  if(b.dataset.a==="copy"){
+    (navigator.clipboard?navigator.clipboard.writeText(code):Promise.reject()).catch(()=>{
+      const ta=document.createElement("textarea");ta.value=code;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove()});
+    b.textContent=t("copied");setTimeout(()=>b.textContent=t("copy"),1500);
+  }else{
+    const ext={html:"html",javascript:"js",js:"js",python:"py",css:"css"}[b.dataset.l.toLowerCase()]||"txt";
+    const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([code],{type:"text/plain"}));
+    a.download="code."+ext;a.click();
+  }
+};
+ui();
+</script>
+</body>
+</html>
